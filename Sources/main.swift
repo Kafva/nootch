@@ -18,11 +18,7 @@ if NSScreen.screens.count > 1 {
     exit(1)
 }
 
-guard let cfg = ModelConfig() else {
-    exit(1)
-}
-
-guard let nootch = Nootch(cfg: cfg) else {
+guard let nootch = Nootch() else {
     exit(1)
 }
 

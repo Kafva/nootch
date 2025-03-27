@@ -1,7 +1,7 @@
 import AppKit
 import SystemConfiguration
 
-struct ModelConfig {
+private struct ModelConfig {
     let width: Int
     let height: Int
     let notchlessHeight: Int
@@ -67,7 +67,10 @@ class Nootch {
     private let cfg: ModelConfig
     private var displayModes: [CGDisplayMode] = []
 
-    init?(cfg: ModelConfig) {
+    init?() {
+        guard let cfg = ModelConfig() else {
+            return nil
+        }
         self.cfg = cfg
 
         let option = [kCGDisplayShowDuplicateLowResolutionModes: kCFBooleanTrue] as
@@ -76,10 +79,10 @@ class Nootch {
         guard let modes = CGDisplayCopyAllDisplayModes(mainDisplayID, option) as?
                           [CGDisplayMode] else {
             print("Failed to get display modes")
-            return
+            return nil
         }
 
-        displayModes = modes.filter { $0.isUsableForDesktopGUI() }
+        self.displayModes = modes.filter { $0.isUsableForDesktopGUI() }
     }
 
     func toggleNotch() -> Bool {
