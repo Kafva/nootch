@@ -16,4 +16,3 @@ public func sysctlGet(_ key: String) -> String? {
 
     return String(utf8String: machine)
 }
-
