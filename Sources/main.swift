@@ -18,11 +18,7 @@ if NSScreen.screens.count > 1 {
     exit(1)
 }
 
-let model = sysctlGet("hw.model") ?? ""
-let cfg = ModelConfig(model: model)
-
-guard let cfg else {
-    print("Unsupported model: '\(model)'")
+guard let cfg = ModelConfig() else {
     exit(1)
 }
 
@@ -30,5 +26,5 @@ guard let nootch = Nootch(cfg: cfg) else {
     exit(1)
 }
 
-let r = nootch.toggleNotch()
-exit(r ? 1 : 0)
+let ok = nootch.toggleNotch()
+exit(ok ? 0 : 1)

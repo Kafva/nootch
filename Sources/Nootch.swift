@@ -1,4 +1,5 @@
 import AppKit
+import SystemConfiguration
 
 struct ModelConfig {
     let width: Int
@@ -6,7 +7,10 @@ struct ModelConfig {
     let notchlessHeight: Int
     let refreshRate: Double
 
-    init?(model: String) {
+    init?() {
+        guard let model = ModelConfig.sysctlGet("hw.model") else {
+            return nil
+        }
         switch (model) {
         case "Mac15,6":  // M3
             self.width = 1512
@@ -14,6 +18,7 @@ struct ModelConfig {
             self.notchlessHeight = 945
             self.refreshRate = 120.0
         default:
+            print("Unsupported model: '\(model)'")
             return nil
         }
     }
@@ -21,12 +26,6 @@ struct ModelConfig {
     func isDefaultMode(displayMode: CGDisplayMode) -> Bool {
         return self.width == displayMode.width &&
                self.height == displayMode.height &&
-               self.refreshRate == displayMode.refreshRate
-    }
-
-    func isNotchlessMode(displayMode: CGDisplayMode) -> Bool {
-        return self.width == displayMode.width &&
-               self.notchlessHeight == displayMode.height &&
                self.refreshRate == displayMode.refreshRate
     }
 
@@ -44,6 +43,22 @@ struct ModelConfig {
             self.notchlessHeight == $0.height &&
             self.refreshRate == $0.refreshRate
         }
+    }
+
+    static private func sysctlGet(_ key: String) -> String? {
+        var size = 0
+        if sysctlbyname(key, nil, &size, nil, 0) != 0 {
+            print("Failed to retrieve size of '\(key)'")
+            return nil
+        }
+
+        var machine = [CChar](repeating: 0,  count: size)
+        if sysctlbyname(key, &machine, &size, nil, 0) != 0 {
+            print("Failed to retrieve value of '\(key)'")
+            return nil
+        }
+
+        return String(utf8String: machine)
     }
 }
 
@@ -92,9 +107,10 @@ class Nootch {
 
     private func setResolution(displayMode: CGDisplayMode, notchless: Bool) -> Bool {
         var config: CGDisplayConfigRef?
-        let modeStr = notchless ? "notchless" : "default"
+        let dims = "\(displayMode.width)x\(displayMode.height)"
+        let modeStr = notchless ? "no notch" : "default"
         print(
-            "Setting resolution to: \(displayMode.width)x\(displayMode.height) [\(modeStr)]"
+            "Setting resolution to: \(dims) [\(modeStr)]"
         )
 
         guard CGBeginDisplayConfiguration(&config) == .success else {
@@ -109,17 +125,6 @@ class Nootch {
             return false
         }
 
-        // Verify the change
-        guard let newMode = CGDisplayCopyDisplayMode(mainDisplayID) else {
-            print("Unexpected result from display configuration")
-            return false
-        }
-
-        if notchless {
-            return cfg.isDefaultMode(displayMode: newMode)
-        }
-        else {
-            return cfg.isNotchlessMode(displayMode: newMode)
-        }
+        return true
     }
 }
