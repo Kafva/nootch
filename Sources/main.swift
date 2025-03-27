@@ -1,12 +1,14 @@
 #!/usr/bin/env swift
 import AppKit
+import System
 
 if (CommandLine.arguments.contains { $0 == "--help" || $0 == "-h" }) {
+    let program = FilePath(CommandLine.arguments[0]).lastComponent
     print("""
     Toggle between the default resolution and a smaller resolution that hides
     the black 'notch' on MacBook displays.
 
-    Usage: nootch [-h]
+    Usage: \(program ?? "") [-h]
     """)
     exit(1)
 }
