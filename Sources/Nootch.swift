@@ -74,7 +74,6 @@ class Nootch {
         }
 
         if cfg.isDefaultMode(displayMode: mode) {
-            print("Setting notchless resolution")
             guard let displayMode = cfg.notchlessMode(displayModes: displayModes) else {
                 print("Failed to retrieve notchless display mode")
                 return false
@@ -82,7 +81,6 @@ class Nootch {
             return setResolution(displayMode: displayMode, notchless: true)
         }
         else {
-            print("Setting default resolution")
             guard let displayMode = cfg.defaultMode(displayModes: displayModes) else {
                 print("Failed to retrieve default display mode")
                 return false
@@ -94,9 +92,9 @@ class Nootch {
 
     private func setResolution(displayMode: CGDisplayMode, notchless: Bool) -> Bool {
         var config: CGDisplayConfigRef?
-
+        let modeStr = notchless ? "notchless" : "default"
         print(
-            "Setting resolution to: \(displayMode.width)x\(displayMode.height)"
+            "Setting resolution to: \(displayMode.width)x\(displayMode.height) [\(modeStr)]"
         )
 
         guard CGBeginDisplayConfiguration(&config) == .success else {
