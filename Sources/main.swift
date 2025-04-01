@@ -13,8 +13,11 @@ if (CommandLine.arguments.contains { $0 == "--help" || $0 == "-h" }) {
     exit(1)
 }
 
-if NSScreen.screens.count > 1 {
-    print("More than one screen attached")
+let builtinDisplayName = "Built-in Retina Display"
+let displayName = NSScreen.main?.localizedName ?? ""
+
+if displayName != builtinDisplayName {
+    print("Main screen should be: \"\(builtinDisplayName)\", found \"\(displayName)\"")
     exit(1)
 }
 
